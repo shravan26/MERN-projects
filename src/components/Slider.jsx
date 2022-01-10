@@ -1,4 +1,4 @@
-import { Button } from "@material-ui/core";
+
 import { ArrowLeftOutlined, ArrowRightOutlined } from "@material-ui/icons";
 import { useState } from "react";
 import styled from "styled-components";
@@ -70,7 +70,7 @@ const Description = styled.p`
 	letter-spacing : 5px;
 `;
 
-const Buttom = styled.button`
+const Button = styled.button`
 	padding : 10px;
 	font-size : 20px;
 	background-color : transparent;
@@ -94,7 +94,7 @@ const Slider = () => {
             </Arrow>
             <Wrapper slideIndex={slideIndex}>
 				{sliderItems.map((item) => (
-					<Slide bg = {item.bg} >
+					<Slide bg = {item.bg} key={item.id}>
 						<ImageContainer>
 							<Image src = {item.img} />
 						</ImageContainer>

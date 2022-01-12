@@ -1,8 +1,10 @@
 import { Facebook, Instagram, MailOutline, Phone, Pinterest, Room, Twitter } from "@material-ui/icons";
 import styled from "styled-components";
+import { mobile } from "../responsive";
 
 const Container = styled.div`
     display: flex;
+    ${mobile({flexDirection : 'column'})}
 `;
 const Logo = styled.h1`
     font-weight: 700;

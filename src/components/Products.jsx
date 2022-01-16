@@ -9,7 +9,10 @@ const Container = styled.div`
     justify-content : space-between;
 `;
 
-const Products = () => {
+const Products = ({cat,filters,sort}) => {
+    console.log(cat);
+    console.log(filters);
+    console.log(sort);
     return (
         <Container>
             {popularProducts.map((item) =>

@@ -1,8 +1,15 @@
 import { Add, Remove } from "@material-ui/icons";
+import { useSelector } from "react-redux";
 import styled from "styled-components";
 import Announcements from "../components/Announcements";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
+import StripeCheckout from "react-stripe-checkout";
+import { useEffect, useState } from "react";
+import {publicRequest} from '../requestMethods';
+import { useHistory } from "react-router-dom";
+
+const KEY = 'pk_test_51KIK4mSBXtp2yyWJi0z9Nu9kVju6qeezpEjZ67he42m5muz2LHofA03i2IBt0O1aTu96p3nMlW0IYmq7x7Vzt9bU00FPGxCXsD';
 
 const Container = styled.div``;
 
@@ -136,14 +143,36 @@ const SummaryItemText = styled.span``;
 const SummaryItemPrice = styled.span``;
 
 const Button = styled.button`
-    width : 100%;
-    padding : 20px;
+    width: 100%;
+    padding: 20px;
     font-weight: 600;
-    background-color : black; 
-    color : white;
+    background-color: black;
+    color: white;
 `;
 
 const Cart = () => {
+    const cart = useSelector((state) => state.cart);
+    const [stripeToken, setStripeToken] = useState(null);
+    const history = useHistory();
+    const onToken = (token) => {
+        setStripeToken(token);
+    };
+
+    useEffect(() => {
+        const makeRequest = async () => {
+            try {
+                let res = await publicRequest.post('/checkout/payment',{
+                    tokenId : stripeToken.id,
+                    amount : cart.total * 100
+                });
+                history.push('/success');
+            } catch (error) {
+                console.log(error);
+            }
+        }
+        stripeToken && makeRequest();
+    },[stripeToken])
+    console.log(stripeToken);
     return (
         <Container>
             <Navbar />
@@ -160,63 +189,44 @@ const Cart = () => {
                 </Top>
                 <Bottom>
                     <Info>
-                        <Product>
-                            <ProductDetails>
-                                <Image src="https://hips.hearstapps.com/vader-prod.s3.amazonaws.com/1614188818-TD1MTHU_SHOE_ANGLE_GLOBAL_MENS_TREE_DASHERS_THUNDER_b01b1013-cd8d-48e7-bed9-52db26515dc4.png?crop=1xw:1.00xh;center,top&resize=480%3A%2A" />
-                                <Details>
-                                    <ProductName>
-                                        <b>Product:</b> JESSE THUNDER SHOES
-                                    </ProductName>
-                                    <ProductId>
-                                        <b>ID:</b> 8979797440
-                                    </ProductId>
-                                    <ProductColor color="black" />
-                                    <ProductSize>
-                                        <b>Size:</b> 37.5
-                                    </ProductSize>
-                                </Details>
-                            </ProductDetails>
-                            <PriceDetails>
-                                <ProductAmountContainer>
-                                    <Remove />
-                                    <ProductAmount>2</ProductAmount>
-                                    <Add />
-                                </ProductAmountContainer>
-                                <ProductPrice>$ 30</ProductPrice>
-                            </PriceDetails>
-                        </Product>
+                        {cart.products.map((product) => (
+                            <Product>
+                                <ProductDetails>
+                                    <Image src={product.img} />
+                                    <Details>
+                                        <ProductName>
+                                            <b>Product:</b> {product.title}
+                                        </ProductName>
+                                        <ProductId>
+                                            <b>ID:</b> {product._id}
+                                        </ProductId>
+                                        <ProductColor color={product.color} />
+                                        <ProductSize>
+                                            <b>Size:</b> {product.size}
+                                        </ProductSize>
+                                    </Details>
+                                </ProductDetails>
+                                <PriceDetails>
+                                    <ProductAmountContainer>
+                                        <Remove />
+                                        <ProductAmount>
+                                            {product.quantity}
+                                        </ProductAmount>
+                                        <Add />
+                                    </ProductAmountContainer>
+                                    <ProductPrice>
+                                        $ {product.price * product.quantity}
+                                    </ProductPrice>
+                                </PriceDetails>
+                            </Product>
+                        ))}
                         <Hr />
-                        <Product>
-                            <ProductDetails>
-                                <Image src="https://i.pinimg.com/originals/2d/af/f8/2daff8e0823e51dd752704a47d5b795c.png" />
-                                <Details>
-                                    <ProductName>
-                                        <b>Product:</b> HAKURA T-SHIRT
-                                    </ProductName>
-                                    <ProductId>
-                                        <b>ID:</b> 5578914940
-                                    </ProductId>
-                                    <ProductColor color="gray" />
-                                    <ProductSize>
-                                        <b>Size:</b> L
-                                    </ProductSize>
-                                </Details>
-                            </ProductDetails>
-                            <PriceDetails>
-                                <ProductAmountContainer>
-                                    <Remove />
-                                    <ProductAmount>2</ProductAmount>
-                                    <Add />
-                                </ProductAmountContainer>
-                                <ProductPrice>$ 30</ProductPrice>
-                            </PriceDetails>
-                        </Product>
                     </Info>
                     <Summary>
                         <SummaryTitle>ORDER SUMMARY</SummaryTitle>
                         <SummaryItem>
                             <SummaryItemText>SubTotal</SummaryItemText>
-                            <SummaryItemPrice>$ 80</SummaryItemPrice>
+                            <SummaryItemPrice>$ {cart.total}</SummaryItemPrice>
                         </SummaryItem>
                         <SummaryItem>
                             <SummaryItemText>
@@ -232,9 +242,20 @@ const Cart = () => {
                         </SummaryItem>
                         <SummaryItem type="total">
                             <SummaryItemText>Total</SummaryItemText>
-                            <SummaryItemPrice>$ 80</SummaryItemPrice>
+                            <SummaryItemPrice>$ {cart.total}</SummaryItemPrice>
                         </SummaryItem>
-                        <Button>CHECKOUT NOW</Button>
+                        <StripeCheckout
+                            name="Lama Shop"
+                            image="https://avatars.githubusercontent.com/u/1486366?v=4"
+                            billingAddress
+                            shippingAddress
+                            description={`Your total is $${cart.total}`}
+                            amount={cart.total * 100}
+                            token={onToken}
+                            stripeKey={KEY}
+                        >
+                            <Button>CHECKOUT NOW</Button>
+                        </StripeCheckout>
                     </Summary>
                 </Bottom>
             </Wrapper>

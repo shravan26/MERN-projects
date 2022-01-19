@@ -5,6 +5,7 @@ import Product from "./pages/Product";
 import ProductList from "./pages/ProductList";
 import Register from "./pages/Register";
 import { BrowserRouter as Router,Switch,Route } from "react-router-dom";
+import Success from "./pages/Success";
 
 const App = () => {
     return (
@@ -27,6 +28,9 @@ const App = () => {
           </Route>
           <Route path="/cart"> 
             <Cart />
+          </Route>
+          <Route path="/success"> 
+            <Success /> 
           </Route>
         </Switch>
       </Router>

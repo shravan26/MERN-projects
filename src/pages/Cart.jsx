@@ -6,9 +6,8 @@ import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import StripeCheckout from "react-stripe-checkout";
 import { useEffect, useState } from "react";
-import {publicRequest} from '../requestMethods';
-import { useHistory } from "react-router-dom";
-
+import {publicRequest, userRequest} from '../requestMethods';
+import {useHistory} from 'react-router-dom';
 const KEY = 'pk_test_51KIK4mSBXtp2yyWJi0z9Nu9kVju6qeezpEjZ67he42m5muz2LHofA03i2IBt0O1aTu96p3nMlW0IYmq7x7Vzt9bU00FPGxCXsD';
 
 const Container = styled.div``;
@@ -161,17 +160,18 @@ const Cart = () => {
     useEffect(() => {
         const makeRequest = async () => {
             try {
-                let res = await publicRequest.post('/checkout/payment',{
+                let res = await userRequest.post('/checkout/payment',{
                     tokenId : stripeToken.id,
-                    amount : cart.total * 100
+                    amount : 500
                 });
-                history.push('/success');
+                history.push("/success", {data: res.data});
             } catch (error) {
                 console.log(error);
+                history.push("/success");
             }
         }
         stripeToken && makeRequest();
-    },[stripeToken])
+    },[stripeToken, cart.total, history])
     console.log(stripeToken);
     return (
         <Container>
